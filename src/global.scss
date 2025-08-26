@@ -35,3 +35,15 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+:root {
+  --primary-color: #f37a31;
+  --danger-color: #e74c3c;
+  --success-color: #27ae60;
+  --header-color: #252525;
+
+}
+
+body {
+  letter-spacing: -1px;
+}

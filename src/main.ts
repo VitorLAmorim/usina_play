@@ -4,6 +4,16 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import {addIcons} from "ionicons";
+import { menuOutline, notifications, body, trophy, add} from "ionicons/icons";
+
+addIcons({
+  'menu-outline': menuOutline,
+  'notifications': notifications,
+  'body': body,
+  'trophy': trophy,
+  'add': add
+});
 
 bootstrapApplication(AppComponent, {
   providers: [
