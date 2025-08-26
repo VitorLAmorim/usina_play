@@ -1,19 +1,28 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {IonicModule, ModalController} from "@ionic/angular";
+import {ModalController} from "@ionic/angular/standalone";
 import {User, UserLevelLabel} from "../models/user.model";
 import {UserService} from "../services/user.service";
 import {MockService} from "../services/mock.service";
 import {CarouselItem, ImageCarouselComponent} from "../image-carousel/image-carousel.component";
 import {IconCircleComponent} from "../components/circle-icon.component";
-import { AlertController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular/standalone';
 import { NotificationsModalComponent } from '../components/notifications-modal.component';
 import {Router} from "@angular/router";
+import { IonContent, IonHeader, IonIcon, IonAvatar } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [IonicModule, ImageCarouselComponent, IconCircleComponent],
+  standalone: true,
+  imports: [
+    ImageCarouselComponent,
+    IconCircleComponent,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonAvatar
+  ],
 })
 
 export class HomePage implements OnInit {
@@ -115,7 +124,10 @@ export class HomePage implements OnInit {
 
     switch (item.status) {
       case "NEW": {
-        this.mockService.visualizeSlide(item._id);
+        header = 'Marcar treino como visualizado?'
+        handler = () => {
+          this.mockService.visualizeSlide(item._id);
+        }
         break;
       }
       case "STARTED": {
@@ -140,25 +152,22 @@ export class HomePage implements OnInit {
       }
     }
 
-    if(item.status === "NEW") {
-      return
-    }
+      const alert = await this.alertCtrl.create({
+        header,
+        buttons: [
+          {
+            text: 'Não',
+            role: 'cancel',
+          },
+          {
+            text: 'Sim',
+            handler,
+          },
+        ],
+      });
 
-    const alert = await this.alertCtrl.create({
-      header,
-      buttons: [
-        {
-          text: 'Não',
-          role: 'cancel',
-        },
-        {
-          text: 'Sim',
-          handler,
-        },
-      ],
-    });
+      await alert.present();
 
-    await alert.present();
   }
 
 }

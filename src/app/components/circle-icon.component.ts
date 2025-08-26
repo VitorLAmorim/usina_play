@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-icon-circle',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonIcon],
   template: `
     <div class="circle" [style.border-color]="color"  [style.width.rem]="2.5 * size" [style.height.rem]="2.5 * size" [style.color]="color">
       <ion-icon [style.font-size.rem]="size" [name]="icon"></ion-icon>

@@ -1,5 +1,6 @@
 import {Component, Input, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
-import {IonicModule, IonicSlides} from "@ionic/angular";
+import {IonicSlides} from "@ionic/angular";
+import {IonContent, IonBadge} from "@ionic/angular/standalone";
 import { register } from 'swiper/element/bundle';
 import {IconCircleComponent} from "../components/circle-icon.component";
 
@@ -17,7 +18,8 @@ export interface CarouselItem {
   templateUrl: './image-carousel.component.html',
   styleUrls: ['./image-carousel.component.scss'],
   imports: [
-    IonicModule,
+    IonContent,
+    IonBadge,
     IconCircleComponent
   ],
   standalone: true,

@@ -1,11 +1,13 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { RouteReuseStrategy, provideRouter, withHashLocation } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
-
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import {addIcons} from "ionicons";
 import { menuOutline, notifications, body, trophy, add} from "ionicons/icons";
+import {defineCustomElements} from "ionicons/dist/loader";
+
+import { provideZoneChangeDetection } from '@angular/core';
 
 addIcons({
   'menu-outline': menuOutline,
@@ -15,10 +17,16 @@ addIcons({
   'add': add
 });
 
+defineCustomElements(window);
+
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideRouter(routes, withHashLocation()),
+    provideZoneChangeDetection({
+      eventCoalescing: true,
+      runCoalescing: true
+    })
   ],
-});
+}).catch(err => console.error(err));

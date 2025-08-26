@@ -1,16 +1,32 @@
 import {Component, signal, inject} from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user.service';
-import {IonicModule} from "@ionic/angular";
 import {FormsModule} from "@angular/forms";
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonTitle,
+  IonToolbar
+} from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   imports: [
-    IonicModule,
-    FormsModule
+    FormsModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonButton,
+    IonInput
   ],
   standalone: true
 })

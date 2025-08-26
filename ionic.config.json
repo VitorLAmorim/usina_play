@@ -1,5 +1,15 @@
 {
   "name": "gymProject",
-  "integrations": {},
-  "type": "angular-standalone"
+  "integrations": {
+    "capacitor": {
+      "android": {
+        "hideLogs": false
+      }
+    }
+  },
+  "type": "angular-standalone",
+  "build": {
+    "optimizeJs": true,
+    "optimizeCss": true
+  }
 }

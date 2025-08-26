@@ -36,12 +36,23 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
+ion-button, ion-input, ion-card, ion-content, ion-header {
+  display: block;
+}
+
 :root {
   --primary-color: #f37a31;
   --danger-color: #e74c3c;
   --success-color: #27ae60;
   --header-color: #252525;
+  color-scheme: dark;
+}
 
+:root,
+:root[mode=ios],
+:root[mode=md] {
+  --ion-background-color: #121212;
+  --ion-text-color: #ffffff;
 }
 
 body {
