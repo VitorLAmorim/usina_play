@@ -4,7 +4,7 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import {addIcons} from "ionicons";
-import { menuOutline, notifications, body, trophy, add} from "ionicons/icons";
+import { menuOutline, notifications, body, trophy, add, helpCircle} from "ionicons/icons";
 import {defineCustomElements} from "ionicons/dist/loader";
 
 import { provideZoneChangeDetection } from '@angular/core';
@@ -14,7 +14,8 @@ addIcons({
   'notifications': notifications,
   'body': body,
   'trophy': trophy,
-  'add': add
+  'add': add,
+  'help-circle': helpCircle
 });
 
 defineCustomElements(window);

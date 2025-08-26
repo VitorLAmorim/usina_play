@@ -10,7 +10,7 @@
     "build:android": "npm run build && npx cap copy && npx cap sync android",
     "apk:debug": "cd android && ./gradlew assembleDebug",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
     "lint": "ng lint"
   },
   "private": true,

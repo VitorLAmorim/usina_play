@@ -29,8 +29,7 @@ export class UserService {
 
   gerCurrentUser(): User {
     if(!this.loggedUser) {
-      return this.mockUser;
-      // throw new Error('Usuário não logado');
+      throw new Error('Usuário não logado');
     }
     return this.loggedUser;
   }

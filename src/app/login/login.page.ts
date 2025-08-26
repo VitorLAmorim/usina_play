@@ -33,7 +33,7 @@ import {
 
 export class LoginPage {
   private mockService = inject(UserService);
-  private router = inject(Router);
+  public router = inject(Router);
   email = '';
   password = '';
   error = '';
