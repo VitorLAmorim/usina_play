@@ -1,14 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NotificationsModalComponent } from './notifications-modal.component';
-import { MockService, Notification } from '../services/mock.service';
+import { NotificationService } from '../services/notification.service';
 import { ModalController } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
+import {Notification} from "../models/notification.model";
 
 describe('NotificationsModalComponent', () => {
   let component: NotificationsModalComponent;
   let fixture: ComponentFixture<NotificationsModalComponent>;
-  let mockServiceSpy: jasmine.SpyObj<MockService>;
+  let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
   let modalControllerSpy: jasmine.SpyObj<ModalController>;
   let notificationsSubject: BehaviorSubject<Notification[]>;
 
@@ -30,15 +31,15 @@ describe('NotificationsModalComponent', () => {
   beforeEach(() => {
     notificationsSubject = new BehaviorSubject<Notification[]>(mockNotifications);
 
-    mockServiceSpy = jasmine.createSpyObj('MockService', ['readNotification']);
-    mockServiceSpy.notificationsObservable = notificationsSubject.asObservable();
+    notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['readNotification']);
+    notificationServiceSpy.notificationsObservable = notificationsSubject.asObservable();
 
     modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
 
     TestBed.configureTestingModule({
       imports: [CommonModule],
       providers: [
-        { provide: MockService, useValue: mockServiceSpy },
+        { provide: NotificationService, useValue: notificationServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy }
       ]
     }).compileComponents();
@@ -70,7 +71,7 @@ describe('NotificationsModalComponent', () => {
 
     component.markAsRead(notification);
 
-    expect(mockServiceSpy.readNotification).toHaveBeenCalledWith(notification);
+    expect(notificationServiceSpy.readNotification).toHaveBeenCalledWith(notification);
   });
 
   it('should update notifications when service emits new values', (done) => {

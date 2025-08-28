@@ -1,8 +1,7 @@
 export interface User {
-  _id: string;
   email: string;
   password: string;
-  name: string;
+  firstName: string;
   lastName: string;
   userLevel: UserLevel;
 }

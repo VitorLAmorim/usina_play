@@ -23,13 +23,13 @@
       </swiper-slide>
 
     }
-    @for (item of items; track item.description) {
-      <swiper-slide class="image-carousel__swiper-slide" (click)="slideClicked.emit(item)" >
+    @for (item of items; track item.title) {
+      <swiper-slide class="image-carousel__swiper-slide" (click)="programClicked.emit(item)" >
         <img [src]="item.image" alt="">
         @if (item.status === 'STARTED' && showStatus) {
           <p class="image-carousel__swiper-slide-status">continuar treinando</p>
         }
-        <p class="image-carousel__swiper-slide-description">{{ item.description }}</p>
+        <p class="image-carousel__swiper-slide-description">{{ item.title }}</p>
       </swiper-slide>
     }
   </swiper-container>

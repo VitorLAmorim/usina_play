@@ -1,36 +1,41 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ImageCarouselComponent, CarouselItem } from './image-carousel.component';
+import { ImageCarouselComponent } from './image-carousel.component';
+import {Program} from "../models/program.model";
 
 describe('ImageCarouselComponent', () => {
   let component: ImageCarouselComponent;
   let fixture: ComponentFixture<ImageCarouselComponent>;
 
-  const mockItems: CarouselItem[] = [
+  const mockItems: Program[] = [
     {
       _id: '1',
       image: 'assets/images/aquecimento.jpg',
-      description: 'AQUECIMENTO',
+      title: 'AQUECIMENTO',
+      description: 'Exercícios leves para preparar seu corpo e aumentar a circulação antes do treino principal.',
       status: 'NEW'
     },
     {
       _id: '2',
       image: 'assets/images/ioga.jpg',
-      description: 'YOGA EXPERIENCE',
+      title: 'YOGA EXPERIENCE',
+      description: 'Sessão de yoga focada em alongamento, respiração e equilíbrio para relaxar a mente e o corpo.',
       status: 'VISUALIZED'
     },
     {
       _id: '3',
       image: 'assets/images/corrida.jpg',
-      description: 'CORRIDA',
+      title: 'CORRIDA',
+      description: 'Treino de corrida para melhorar resistência cardiovascular e queimar calorias de forma eficiente.',
       status: 'STARTED'
     },
     {
       _id: '4',
       image: 'assets/images/musculacao.jpg',
-      description: 'LEVANTAMENTO DE PESO',
-      status: 'COMPLETED'
+      title: 'LEVANTAMENTO DE PESO',
+      description: 'Treino de força com pesos para desenvolver músculos, aumentar a resistência e definir o corpo.',
+      status: 'NEW'
     }
   ];
 
@@ -82,13 +87,13 @@ describe('ImageCarouselComponent', () => {
     expect(component.addNew.emit).toHaveBeenCalled();
   });
 
-  it('should emit slideClicked event with correct item', () => {
-    spyOn(component.slideClicked, 'emit');
+  it('should emit programClicked event with correct item', () => {
+    spyOn(component.programClicked, 'emit');
     const testItem = mockItems[0];
 
-    component.slideClicked.emit(testItem);
+    component.programClicked.emit(testItem);
 
-    expect(component.slideClicked.emit).toHaveBeenCalledWith(testItem);
+    expect(component.programClicked.emit).toHaveBeenCalledWith(testItem);
   });
 
   it('should detect new items correctly when showStatus is true', () => {
@@ -113,12 +118,14 @@ describe('ImageCarouselComponent', () => {
       {
         _id: '1',
         image: 'test.jpg',
+        title: 'TEST',
         description: 'TEST',
         status: 'COMPLETED'
       },
       {
         _id: '2',
         image: 'test2.jpg',
+        title: 'TEST',
         description: 'TEST2',
         status: 'VISUALIZED'
       }

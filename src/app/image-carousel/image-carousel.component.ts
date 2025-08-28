@@ -1,17 +1,11 @@
-import {Component, Input, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import {Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output} from '@angular/core';
 import {IonicSlides} from "@ionic/angular";
-import {IonContent, IonBadge} from "@ionic/angular/standalone";
-import { register } from 'swiper/element/bundle';
+import {IonBadge, IonContent} from "@ionic/angular/standalone";
+import {register} from 'swiper/element/bundle';
 import {IconCircleComponent} from "../components/circle-icon.component";
+import {Program} from "../models/program.model";
 
 register();
-
-export interface CarouselItem {
-  _id: string;
-  image: string;
-  description: string;
-  status: 'STARTED' | 'COMPLETED' | 'NEW' | 'VISUALIZED';
-}
 
 @Component({
   selector: 'app-image-carousel',
@@ -28,7 +22,7 @@ export interface CarouselItem {
 
 export class ImageCarouselComponent  {
 
-  @Input() items: CarouselItem[] = [];
+  @Input() items: Program[] = [];
   @Input() slidesPerView: number = 2;
   @Input() title = '';
   @Input() showAddButton = false;
@@ -36,7 +30,7 @@ export class ImageCarouselComponent  {
   @Input() showStatus = false;
 
   @Output() addNew = new EventEmitter<void>();
-  @Output() slideClicked = new EventEmitter<CarouselItem>();
+  @Output() programClicked = new EventEmitter<Program>();
 
   swiperModules = [IonicSlides];
 

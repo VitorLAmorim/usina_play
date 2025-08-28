@@ -28,13 +28,13 @@ describe('IconCircleComponent', () => {
   });
 
   it('should set custom input values correctly', () => {
-    component.icon = 'star';
+    component.icon = 'trophy';
     component.color = '#ff0000';
     component.size = 1.5;
 
     fixture.detectChanges();
 
-    expect(component.icon).toBe('star');
+    expect(component.icon).toBe('trophy');
     expect(component.color).toBe('#ff0000');
     expect(component.size).toBe(1.5);
   });

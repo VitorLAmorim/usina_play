@@ -2,7 +2,7 @@
     <div class="home-header">
       <div class="home-header__toolbar-wrapper">
       <ion-icon name="menu-outline" style="font-size: 3rem;" (click)="openMenu()"></ion-icon>
-      <img class="home-header__logo" src="assets/icon/logo_usina_play.png" alt="custom icon" />
+      <img class="home-header__logo" src="assets/images/logo_usina_play.png" alt="custom icon" />
       <div class="home-header__notification-wrapper" (click)="openNotifications()">
         <ion-icon name="notifications" class="home-header__notification-icon"></ion-icon>
         @if (hasNewNotifications) {
@@ -12,10 +12,10 @@
       </div>
       <div class="home-header__user-wrapper">
         <ion-avatar class="home-header__avatar">
-          <img src="assets/icon/thispersondoesntexist.jpeg" alt="custom icon" />
+          <img src="assets/images/thispersondoesntexist.jpeg" alt="custom icon" />
         </ion-avatar>
         <div class="home-header__user-name-wrapper">
-          <span class="home-header__user-name">{{user.name }} {{user.lastName}}</span>
+          <span class="home-header__user-name">{{user.firstName }} {{user.lastName}}</span>
           <span class="home-header__user-level" [class]="user.userLevel">{{ UserLevelLabel[user.userLevel]}}</span>
         </div>
       </div>
@@ -34,7 +34,7 @@
 
 <ion-content class="home-content">
   <app-image-carousel [items]="personalTrainerCarouselItems" [title]="'PERSONAL ONLINE'" [showAddButton]="true" (addNew)="createNew()"></app-image-carousel>
-  <app-image-carousel [items]="programsCarouselItems" [title]="'PROGRAMAS'" [showStatus]="true" (slideClicked)="slideClicked($event)" ></app-image-carousel>
+  <app-image-carousel [items]="programsCarouselItems" [title]="'PROGRAMAS'" [showStatus]="true" (programClicked)="programClicked($event)" ></app-image-carousel>
   <app-image-carousel [items]="contentCarouselItems" [title]="'CONTEÚDOS'"  ></app-image-carousel>
 </ion-content>
 

@@ -1,68 +1,77 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomePage } from './home.page';
 import { UserService } from '../services/user.service';
-import { MockService } from '../services/mock.service';
+import { NotificationService } from '../services/notification.service';
+import { ProgramService } from '../services/program.service';
 import { AlertController, ModalController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { User, UserLevel } from '../models/user.model';
-import { CarouselItem } from '../image-carousel/image-carousel.component';
+
+import {Program} from "../models/program.model";
 
 describe('HomePage', () => {
   let component: HomePage;
   let fixture: ComponentFixture<HomePage>;
   let userServiceSpy: jasmine.SpyObj<UserService>;
-  let mockServiceSpy: jasmine.SpyObj<MockService>;
+  let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
+  let programServiceSpy: jasmine.SpyObj<ProgramService>;
   let alertControllerSpy: jasmine.SpyObj<AlertController>;
   let modalControllerSpy: jasmine.SpyObj<ModalController>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   const mockUser: User = {
-    _id: '1',
     email: 'test@test.com',
     password: '123',
-    name: 'Test',
+    firstName: 'Test',
     lastName: 'User',
     userLevel: UserLevel.PURPLE
   };
 
-  const mockSlides: CarouselItem[] = [
+  const mockPrograms: Program[] = [
     {
       _id: '1',
       image: 'assets/images/aquecimento.jpg',
+      title: 'AQUECIMENTO',
       description: 'AQUECIMENTO',
       status: 'NEW'
     },
     {
       _id: '2',
       image: 'assets/images/ioga.jpg',
+      title: 'YOGA EXPERIENCE',
       description: 'YOGA EXPERIENCE',
       status: 'VISUALIZED'
     }
   ];
 
   beforeEach(async () => {
-    userServiceSpy = jasmine.createSpyObj('UserService', ['gerCurrentUser', 'logout']);
-    mockServiceSpy = jasmine.createSpyObj('MockService', [
-      'getSlides',
-      'createSlide',
-      'startSlide',
-      'completeSlide',
-      'visualizeSlide',
+    userServiceSpy = jasmine.createSpyObj('UserService', ['getCurrentUser', 'logout']);
+    notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
       'getNotifications',
-      'createNotification'
+      'createNotification',
+      'readNotification',
+      'deleteNotification'
+    ]);
+    programServiceSpy = jasmine.createSpyObj('ProgramService', [
+      'getPrograms',
+      'createProgram',
+      'startProgram',
+      'completeProgram',
+      'visualizeProgram',
+      'deleteProgram'
     ]);
     alertControllerSpy = jasmine.createSpyObj('AlertController', ['create']);
     modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
-    userServiceSpy.gerCurrentUser.and.returnValue(mockUser);
-    mockServiceSpy.getSlides.and.returnValue(mockSlides);
-    mockServiceSpy.getNotifications.and.returnValue([
+    userServiceSpy.getCurrentUser.and.returnValue(mockUser);
+    programServiceSpy.getPrograms.and.returnValue(of(mockPrograms));
+    notificationServiceSpy.getNotifications.and.returnValue(of([
       { _id: '1', title: 'Test', description: 'Test notification', read: false }
-    ]);
-    mockServiceSpy.carouselObservable = of(mockSlides);
-    mockServiceSpy.notificationsObservable = of([
+    ]));
+    programServiceSpy.carouselObservable = of(mockPrograms);
+    notificationServiceSpy.notificationsObservable = of([
       { _id: '1', title: 'Test', description: 'Test notification', read: false }
     ]);
 
@@ -76,7 +85,8 @@ describe('HomePage', () => {
     await TestBed.configureTestingModule({
       providers: [
         { provide: UserService, useValue: userServiceSpy },
-        { provide: MockService, useValue: mockServiceSpy },
+        { provide: NotificationService, useValue: notificationServiceSpy },
+        { provide: ProgramService, useValue: programServiceSpy },
         { provide: AlertController, useValue: alertControllerSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: Router, useValue: routerSpy }
@@ -94,9 +104,9 @@ describe('HomePage', () => {
 
   it('should initialize with user data and carousel items', () => {
     expect(component.user).toEqual(mockUser);
-    expect(component.personalTrainerCarouselItems).toEqual(mockSlides);
-    expect(component.programsCarouselItems.length).toEqual(mockSlides.length);
-    expect(component.contentCarouselItems).toEqual(mockSlides);
+    expect(component.personalTrainerCarouselItems).toEqual(mockPrograms);
+    expect(component.programsCarouselItems.length).toEqual(mockPrograms.length);
+    expect(component.contentCarouselItems).toEqual(mockPrograms);
     expect(component.hasNewNotifications).toBeTrue();
   });
 
@@ -106,20 +116,21 @@ describe('HomePage', () => {
   });
 
   it('should update carousel items', () => {
-    const newSlides: CarouselItem[] = [
+    const newProgram: Program[] = [
       {
         _id: '3',
         image: 'assets/images/corrida.jpg',
-        description: 'CORRIDA',
+        title: 'CORRIDA',
+        description: 'corrida teste',
         status: 'STARTED'
       }
     ];
 
-    component.updateCarousel(newSlides);
+    component.updateCarousel(newProgram);
 
-    expect(component.personalTrainerCarouselItems).toEqual(newSlides);
-    expect(component.programsCarouselItems.length).toEqual(newSlides.length);
-    expect(component.contentCarouselItems).toEqual(newSlides);
+    expect(component.personalTrainerCarouselItems).toEqual(newProgram);
+    expect(component.programsCarouselItems.length).toEqual(newProgram.length);
+    expect(component.contentCarouselItems).toEqual(newProgram);
   });
 
   it('should open menu with logout option', async () => {
@@ -131,8 +142,8 @@ describe('HomePage', () => {
     });
   });
 
-  it('should create new slide', async () => {
-    const testTitle = 'Test Slide';
+  it('should create new program', async () => {
+    const testTitle = 'Test Program';
     alertControllerSpy.create.and.resolveTo({
       present: jasmine.createSpy('present'),
       onDidDismiss: () => Promise.resolve({
@@ -146,15 +157,16 @@ describe('HomePage', () => {
     expect(alertControllerSpy.create).toHaveBeenCalled();
   });
 
-  it('should handle slide clicked with NEW status', async () => {
-    const mockItem: CarouselItem = {
+  it('should handle program clicked with NEW status', async () => {
+    const mockItem: Program = {
       _id: '1',
       image: 'test.jpg',
+      title: 'TEST',
       description: 'TEST',
       status: 'NEW'
     };
 
-    await component.slideClicked(mockItem);
+    await component.programClicked(mockItem);
 
     expect(alertControllerSpy.create).toHaveBeenCalledWith({
       header: 'Marcar treino como visualizado?',
@@ -162,15 +174,16 @@ describe('HomePage', () => {
     });
   });
 
-  it('should handle slide clicked with STARTED status', async () => {
-    const mockItem: CarouselItem = {
+  it('should handle program clicked with STARTED status', async () => {
+    const mockItem: Program = {
       _id: '1',
       image: 'test.jpg',
+      title: 'TEST',
       description: 'TEST',
       status: 'STARTED'
     };
 
-    await component.slideClicked(mockItem);
+    await component.programClicked(mockItem);
 
     expect(alertControllerSpy.create).toHaveBeenCalledWith({
       header: 'Programa iníciado, deseja concluir?',
@@ -178,15 +191,16 @@ describe('HomePage', () => {
     });
   });
 
-  it('should handle slide clicked with COMPLETED status', async () => {
-    const mockItem: CarouselItem = {
+  it('should handle program clicked with COMPLETED status', async () => {
+    const mockItem: Program = {
       _id: '1',
       image: 'test.jpg',
+      title: 'TEST',
       description: 'TEST',
       status: 'COMPLETED'
     };
 
-    await component.slideClicked(mockItem);
+    await component.programClicked(mockItem);
 
     expect(alertControllerSpy.create).toHaveBeenCalledWith({
       header: 'Programa já concluído, deseja reiniciar?',
@@ -194,15 +208,16 @@ describe('HomePage', () => {
     });
   });
 
-  it('should handle slide clicked with VISUALIZED status', async () => {
-    const mockItem: CarouselItem = {
+  it('should handle program clicked with VISUALIZED status', async () => {
+    const mockItem: Program = {
       _id: '1',
       image: 'test.jpg',
+      title: 'TEST',
       description: 'TEST',
       status: 'VISUALIZED'
     };
 
-    await component.slideClicked(mockItem);
+    await component.programClicked(mockItem);
 
     expect(alertControllerSpy.create).toHaveBeenCalledWith({
       header: 'Iniciar programa?',

@@ -2,8 +2,9 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalController } from '@ionic/angular/standalone';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonList, IonItem, IonLabel } from '@ionic/angular/standalone';
-import { MockService, Notification } from '../services/mock.service';
+import { NotificationService } from '../services/notification.service';
 import { Observable } from 'rxjs';
+import {Notification} from "../models/notification.model";
 
 @Component({
   selector: 'app-notifications-modal',
@@ -32,32 +33,29 @@ import { Observable } from 'rxjs';
 
     <ion-content class="ion-padding">
       <ion-list>
-        @for (notification of notifications$ | async; track $index) {
-          <ion-item [color]="notification.read ? 'light' : 'black'">
+        <ng-container *ngIf="notifications$ | async as notifications">
+          <ion-item *ngFor="let notification of notifications" [color]="notification.read ? 'light' : 'black'">
             <ion-label>
               <h3>{{ notification.title }}</h3>
               <p>{{ notification.description }}</p>
             </ion-label>
-            @if(!notification.read) {
-              <ion-button fill="clear" (click)="markAsRead(notification)">
-                Marcar como lida
-              </ion-button>
-            }
+            <ion-button *ngIf="!notification.read" fill="clear" (click)="markAsRead(notification)">
+              Marcar como lida
+            </ion-button>
           </ion-item>
-        }
-
+        </ng-container>
       </ion-list>
     </ion-content>
   `,
 })
 export class NotificationsModalComponent implements OnInit {
-  private mockService = inject(MockService);
+  private notificationService = inject(NotificationService);
   private modalCtrl = inject(ModalController);
 
-  notifications$!: Observable<any[]>;
+  notifications$!: Observable<Notification[]>;
 
   ngOnInit() {
-    this.notifications$ = this.mockService.notificationsObservable;
+    this.notifications$ = this.notificationService.notificationsObservable;
   }
 
   close() {
@@ -65,6 +63,6 @@ export class NotificationsModalComponent implements OnInit {
   }
 
   markAsRead(notification: Notification) {
-    this.mockService.readNotification(notification);
+    this.notificationService.readNotification(notification);
   }
 }

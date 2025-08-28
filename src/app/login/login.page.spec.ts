@@ -4,6 +4,8 @@ import { UserService } from '../services/user.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { signal } from '@angular/core';
+import {of} from "rxjs";
+import {User} from "../models/user.model";
 
 describe('LoginPage', () => {
   let component: LoginPage;
@@ -14,6 +16,8 @@ describe('LoginPage', () => {
   beforeEach(() => {
     userServiceSpy = jasmine.createSpyObj('UserService', ['login', 'createUser']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+    userServiceSpy.createUser.and.returnValue(of({email: 'admin@admin.com', password: '123456', firstName: 'Admin', lastName: 'Admin', userLevel: 'PURPLE'} as User))
 
     TestBed.configureTestingModule({
       imports: [FormsModule],
@@ -33,9 +37,9 @@ describe('LoginPage', () => {
   });
 
   it('should login successfully with valid credentials', () => {
-    userServiceSpy.login.and.returnValue(true);
-    component.email = 'admin@admin.com';
-    component.password = '123456';
+    userServiceSpy.login.and.returnValue(of(true));
+    component.email.setValue('admin@admin.com');
+    component.password.setValue('123456');
 
     component.login();
 
@@ -46,9 +50,9 @@ describe('LoginPage', () => {
   });
 
   it('should show error message with invalid credentials', () => {
-    userServiceSpy.login.and.returnValue(false);
-    component.email = 'wrong@email.com';
-    component.password = 'wrongpassword';
+    userServiceSpy.login.and.returnValue(of(false));
+    component.email.setValue('wrong@email.com');
+    component.password.setValue('wrongpassword');
 
     component.login();
 
@@ -58,33 +62,39 @@ describe('LoginPage', () => {
   });
 
   it('should create user successfully with valid data', () => {
-    component.email = 'new@user.com';
-    component.password = 'password123';
+    component.email.setValue('new@user.com');
+    component.password.setValue('password123');
+    component.password2.setValue('password123');
+    component.name.setValue('New User')
 
-    component.createUser();
+    component.saveUser();
 
-    expect(userServiceSpy.createUser).toHaveBeenCalledWith('new@user.com', 'password123');
+    expect(userServiceSpy.createUser).toHaveBeenCalledWith({email: 'new@user.com', password: 'password123', firstName: 'New', lastName: 'User'});
     expect(component.error.normalize('NFC')).toEqual('Usuário criado com sucesso, realize o login'.normalize('NFC'));
   });
 
   it('should show error when creating user with empty fields', () => {
-    component.email = '';
-    component.password = '';
+    component.email.setValue('');
+    component.password.setValue('');
+    component.password2.setValue('');
+    component.name.setValue('')
 
-    component.createUser();
+    component.saveUser();
 
     expect(userServiceSpy.createUser).not.toHaveBeenCalled();
-    expect(component.error).toBe('Preencha todos os campos');
+    expect(component.error).toBe('Dados incorretos');
   });
 
   it('should show error when creating user with invalid email', () => {
-    component.email = 'invalid-email';
-    component.password = 'password123';
+    component.email.setValue('invalid-email');
+    component.password.setValue('password123');
+    component.password2.setValue('password123');
+    component.name.setValue('New User')
 
-    component.createUser();
+    component.saveUser();
 
     expect(userServiceSpy.createUser).not.toHaveBeenCalled();
-    expect(component.error.normalize('NFC')).toBe('Email inválido'.normalize('NFC'));
+    expect(component.error.normalize('NFC')).toBe('Dados incorretos'.normalize('NFC'));
   });
 
   it('should validate email correctly', () => {

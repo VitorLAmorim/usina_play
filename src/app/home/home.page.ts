@@ -2,13 +2,15 @@ import {Component, inject, OnInit} from '@angular/core';
 import {ModalController} from "@ionic/angular/standalone";
 import {User, UserLevelLabel} from "../models/user.model";
 import {UserService} from "../services/user.service";
-import {MockService} from "../services/mock.service";
-import {CarouselItem, ImageCarouselComponent} from "../image-carousel/image-carousel.component";
+import {NotificationService} from "../services/notification.service";
+import {ProgramService} from "../services/program.service";
+import {ImageCarouselComponent} from "../image-carousel/image-carousel.component";
 import {IconCircleComponent} from "../components/circle-icon.component";
 import { AlertController } from '@ionic/angular/standalone';
 import { NotificationsModalComponent } from '../components/notifications-modal.component';
 import {Router} from "@angular/router";
 import { IonContent, IonHeader, IonIcon, IonAvatar } from '@ionic/angular/standalone';
+import {Program} from "../models/program.model";
 
 @Component({
   selector: 'app-home',
@@ -27,16 +29,17 @@ import { IonContent, IonHeader, IonIcon, IonAvatar } from '@ionic/angular/standa
 
 export class HomePage implements OnInit {
   private userService = inject(UserService)
-  private mockService = inject(MockService)
+  private notificationService = inject(NotificationService)
+  private programService = inject(ProgramService)
   private alertCtrl = inject(AlertController)
   private modalCtrl = inject(ModalController)
   private router = inject(Router)
 
   public UserLevelLabel = UserLevelLabel
-  user: User;
-  personalTrainerCarouselItems: CarouselItem[] = [];
-  programsCarouselItems: CarouselItem[] = [];
-  contentCarouselItems: CarouselItem[] = [];
+  user!: User;
+  personalTrainerCarouselItems: Program[] = [];
+  programsCarouselItems: Program[] = [];
+  contentCarouselItems: Program[] = [];
   hasNewNotifications = false;
 
   sortOrder = {
@@ -47,13 +50,17 @@ export class HomePage implements OnInit {
   }
 
   constructor() {
-    this.user = this.userService.gerCurrentUser();
   }
 
   ngOnInit(): void {
-    this.mockService.carouselObservable.subscribe((slides) => this.updateCarousel(slides));
-    this.mockService.notificationsObservable.subscribe((notifications) => this.hasNewNotifications = notifications.some(n => !n.read));
-    this.hasNewNotifications = this.mockService.getNotifications().some(n => !n.read);
+    const user = this.userService.getCurrentUser();
+    if(user) {
+      this.user = user;
+    } else {
+      this.router.navigate(['/login']);
+    }
+    this.programService.carouselObservable.subscribe((programs) => this.updateCarousel(programs));
+    this.notificationService.notificationsObservable.subscribe((notifications) => this.hasNewNotifications = notifications.some(n => !n.read));
   }
 
   async openNotifications() {
@@ -63,15 +70,17 @@ export class HomePage implements OnInit {
     await modal.present();
   }
 
-  updateCarousel(slides?: CarouselItem[]) {
-    if(slides) {
-      this.personalTrainerCarouselItems = slides;
-      this.programsCarouselItems = [...slides].sort((a, b) => this.sortOrder[a.status] -  this.sortOrder[b.status]);
-      this.contentCarouselItems = slides;
+  updateCarousel(programs?: Program[]) {
+    if(programs) {
+      this.personalTrainerCarouselItems = programs;
+      this.programsCarouselItems = [...programs].sort((a, b) => this.sortOrder[a.status] -  this.sortOrder[b.status]);
+      this.contentCarouselItems = programs;
     } else {
-      this.personalTrainerCarouselItems = this.mockService.getSlides();
-      this.programsCarouselItems = [...this.mockService.getSlides()].sort((a, b) => this.sortOrder[a.status] -  this.sortOrder[b.status]);
-      this.contentCarouselItems = this.mockService.getSlides();
+      this.programService.getPrograms().subscribe(programs => {
+        this.personalTrainerCarouselItems = programs;
+        this.programsCarouselItems = [...programs].sort((a, b) => this.sortOrder[a.status] -  this.sortOrder[b.status]);
+        this.contentCarouselItems = programs;
+      });
     }
   }
 
@@ -81,10 +90,16 @@ export class HomePage implements OnInit {
       buttons: [
         {
           text: 'Logout',
-        handler: () => {
-        this.userService.logout();
-        this.router.navigate(['/login']);
-    }
+          handler: () => {
+            this.userService.logout().subscribe({
+              next: () => {
+                this.router.navigate(['/login']);
+              },
+              error: (error) => {
+                console.error('Error logging out:', error);
+              }
+            });
+          }
         }
       ],
     });
@@ -94,12 +109,17 @@ export class HomePage implements OnInit {
 
   async createNew() {
     const alert = await this.alertCtrl.create({
-      header: 'Título',
+      header: 'Criar um treino novo',
       inputs: [
         {
-          name: 'userInput',
+          name: 'title',
           type: 'text',
-          placeholder: 'Digite aqui...',
+          placeholder: 'Digite o titulo',
+        },
+        {
+          name: 'description',
+          type: 'text',
+          placeholder: 'Digite a descrição',
         },
       ],
       buttons: [
@@ -109,8 +129,8 @@ export class HomePage implements OnInit {
         },
         {
           text: 'Salvar',
-          handler: (data) => {
-             this.mockService.createSlide(data.userInput);
+          handler: ({title, description}) => {
+             this.programService.createProgram(title, description).subscribe();
           },
         },
       ],
@@ -118,7 +138,7 @@ export class HomePage implements OnInit {
     await alert.present();
   }
 
-  async slideClicked(item: CarouselItem) {
+  async programClicked(item: Program) {
     let header = '';
     let handler = () => {};
 
@@ -126,34 +146,35 @@ export class HomePage implements OnInit {
       case "NEW": {
         header = 'Marcar treino como visualizado?'
         handler = () => {
-          this.mockService.visualizeSlide(item._id);
+          this.programService.visualizeProgram(item._id).subscribe();
         }
         break;
       }
       case "STARTED": {
         header = 'Programa iníciado, deseja concluir?'
         handler = () => {
-          this.mockService.completeSlide(item._id);
+          this.programService.completeProgram(item._id).subscribe();
         }
         break;
       }
       case "COMPLETED": {
         header = 'Programa já concluído, deseja reiniciar?'
         handler = () => {
-          this.mockService.startSlide(item._id);
+          this.programService.startProgram(item._id).subscribe();
         }
         break;
       }
       case "VISUALIZED": {
         header = 'Iniciar programa?';
         handler = () => {
-          this.mockService.startSlide(item._id);
+          this.programService.startProgram(item._id).subscribe();
         }
       }
     }
 
       const alert = await this.alertCtrl.create({
         header,
+        message: item.description,
         buttons: [
           {
             text: 'Não',
