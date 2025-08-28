@@ -69,3 +69,6 @@ testem.log
 Thumbs.db
 
 firebase-config.ts
+
+android/
+ios/
